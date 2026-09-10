@@ -1,13 +1,15 @@
 using System.Diagnostics;
-using ImGuiNET;
 using Silk.NET.GLFW;
 using Silk.NET.Input;
+using Silk.NET.Input.Sdl;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
+using Silk.NET.SDL;
 using Silk.NET.Windowing;
+using Silk.NET.Windowing.Sdl;
 using Tomlyn;
-using Tomlyn.Serialization;
 using Yui.Serial;
+using Window = Silk.NET.Windowing.Window;
 
 namespace Yui;
 
@@ -44,8 +46,12 @@ public abstract class App
     public int run()
     {
 	    WindowOptions windowConfig = fs.GetConfig<WindowConfig>("Window") ?? throw new("Failed to get config");
+	    windowConfig.API = windowConfig.API with { Version = new APIVersion(4, 5) };
+	    SdlWindowing.RegisterPlatform();
+	    SdlWindowing.Use();
         _window = Window.Create(windowConfig);
-		
+        SdlInput.RegisterPlatform();
+        SdlInput.Use();
 		_window.Load += on_load;
 		_window.Load += Start;
 		_window.Update += update;
