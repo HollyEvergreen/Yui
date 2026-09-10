@@ -13,7 +13,7 @@ using Window = Silk.NET.Windowing.Window;
 
 namespace Yui;
 
-public abstract class App
+public abstract class App(bool debug = false) 
 {
 	protected TomlSerializerOptions toml_opts = new()
 	{
@@ -84,4 +84,11 @@ public abstract class App
 	protected virtual void OnLoad(){}
 	protected virtual void Update(double dt){}
 	protected virtual void Render(double dt){}
+
+	protected void Log(string msg)
+	{
+		#if DEBUG
+		if (debug) Console.Write(msg);
+		#endif
+	}
 }
