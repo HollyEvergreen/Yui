@@ -1,13 +1,23 @@
+using System.Diagnostics;
 using ImGuiNET;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
+using Tomlyn;
+using Tomlyn.Serialization;
+using Yui.Serial;
 
 namespace Yui;
 
 public abstract class App
 {
+	protected TomlSerializerOptions toml_opts = new()
+	{
+		Converters = [new Serial.TomlVector2DConv(), new Serial.TomlVector3DConv(), new Serial.TomlVector4DConv()],
+		WriteIndented = true,
+	};
 	protected Filesystem fs = new();
 	private double _dt;
 	private Timer windowAutoSave;
@@ -17,10 +27,14 @@ public abstract class App
         get => new(ASPeriod * 10_000);
         set => ASPeriod = value.Ticks / 10_000;
     }
-    public IWindow? Window { get; private set; }
+    public IWindow? _window { get; private set; }
     public GL? Gl { get; private set; }
 	public IInputContext? Input {get; private set;}
     public ImGuiController? Imgui { get; private set; }
+    //
+    // public App()
+    // {
+    // }
 
     private void WinAutoSave(object? window)
     {
@@ -28,27 +42,32 @@ public abstract class App
     }
 
     public int run()
-	{
-        Window = Silk.NET.Windowing.Window.Create(fs.GetConfig<WindowOptions>("Window"));
-		Gl = Window.CreateOpenGL();
-		Input = Window.CreateInput();
-        Imgui = new ImGuiController(Gl, Window, Input);
-		windowAutoSave = new(WinAutoSave, null, ASPeriod, ASPeriod);
-		Window.Load += on_load;
-		Window.Load += Start;
-		Window.Update += update;
-		Window.Render += render;
+    {
+	    WindowOptions windowConfig = fs.GetConfig<WindowConfig>("Window") ?? throw new("Failed to get config");
+        _window = Window.Create(windowConfig);
+		
+		_window.Load += on_load;
+		_window.Load += Start;
+		_window.Update += update;
+		_window.Render += render;
 
-		Window.Run();
+		_window.Run();
 		return 0;
 	}
 	private void on_load()
 	{
+		Debug.Assert(_window != null, nameof(_window) + " != null");
+		Gl = _window.CreateOpenGL();
+		if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland") unsafe {
+			Glfw.GetApi().SetWindowRefreshCallback((WindowHandle*)_window.Handle, _ => { });
+		}
+		Input = _window.CreateInput();
+		Imgui = new ImGuiController(Gl, _window, Input);
+		windowAutoSave = new(WinAutoSave, null, ASPeriod, ASPeriod);
 		OnLoad();
 	}
 	private void update(double dt)
 	{
-
 		Update(dt);
 	}
 	private void render(double dt)
