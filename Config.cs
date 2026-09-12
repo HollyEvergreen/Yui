@@ -123,10 +123,14 @@ public class GraphicsAPIConfig
 
 public class APIVersionConfig
 {
-	public int MajorVersion { get; init; }
-	public int MinorVersion { get; init; }
-	public static implicit operator APIVersion(APIVersionConfig cfg) => new()
-		{ MajorVersion = cfg.MajorVersion, MinorVersion = cfg.MinorVersion };
+	public int? MajorVersion { get; init; }
+	public int? MinorVersion { get; init; }
+	public static implicit operator APIVersion(APIVersionConfig? cfg)
+	{
+		return cfg != null
+			? new APIVersion { MajorVersion = cfg.MajorVersion ?? 4, MinorVersion = cfg.MinorVersion ?? 6 }
+			: new APIVersion(4, 6);
+	}
 	public static implicit operator APIVersionConfig(APIVersion cfg) => new()
 		{ MajorVersion = cfg.MajorVersion, MinorVersion = cfg.MinorVersion };
 }
