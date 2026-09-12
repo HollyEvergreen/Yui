@@ -46,7 +46,7 @@ public abstract class App(bool debug = false)
     public int run()
     {
 	    WindowOptions windowConfig = fs.GetConfig<WindowConfig>("Window") ?? throw new("Failed to get config");
-	    windowConfig.API = windowConfig.API with { Version = new APIVersion(4, 5) };
+	    windowConfig.API = windowConfig.API with { Version = new APIVersion(4, 6) };
 	    SdlWindowing.RegisterPlatform();
 	    SdlWindowing.Use();
         _window = Window.Create(windowConfig);
