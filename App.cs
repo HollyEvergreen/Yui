@@ -13,8 +13,12 @@ using Window = Silk.NET.Windowing.Window;
 
 namespace Yui;
 
-public abstract class App(bool debug = false) 
+public abstract class App
 {
+	protected App(bool Debug = false)
+	{
+		debug = Debug;
+	}
 	protected TomlSerializerOptions toml_opts = new()
 	{
 		Converters = [new Serial.TomlVector2DConv(), new Serial.TomlVector3DConv(), new Serial.TomlVector4DConv()],
@@ -24,7 +28,9 @@ public abstract class App(bool debug = false)
 	private double _dt;
 	private Timer windowAutoSave;
 	private long ASPeriod = 300_000;
-    protected TimeSpan AutoSavePeriod
+	public static bool debug;
+
+	protected TimeSpan AutoSavePeriod
     {
         get => new(ASPeriod * 10_000);
         set => ASPeriod = value.Ticks / 10_000;
