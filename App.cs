@@ -36,7 +36,6 @@ public abstract class App
         set => ASPeriod = value.Ticks / 10_000;
     }
     public IWindow? _window { get; private set; }
-    public GL? Gl { get; private set; }
 	public IInputContext? Input {get; private set;}
     public ImGuiController? Imgui { get; private set; }
     //
@@ -69,12 +68,12 @@ public abstract class App
 	private void on_load()
 	{
 		Debug.Assert(_window != null, nameof(_window) + " != null");
-		Gl = _window.CreateOpenGL();
+		OGL.gl = _window.CreateOpenGL();
 		if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland") unsafe {
 			Glfw.GetApi().SetWindowRefreshCallback((WindowHandle*)_window.Handle, _ => { });
 		}
 		Input = _window.CreateInput();
-		Imgui = new ImGuiController(Gl, _window, Input);
+		Imgui = new ImGuiController(OGL.gl, _window, Input);
 		windowAutoSave = new(WinAutoSave, null, ASPeriod, ASPeriod);
 		OnLoad();
 	}
