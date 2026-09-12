@@ -55,6 +55,7 @@ public abstract class App
 	    SdlWindowing.RegisterPlatform();
 	    SdlWindowing.Use();
         _window = Window.Create(windowConfig);
+        Debug.Assert(_window is not null);
         SdlInput.RegisterPlatform();
         SdlInput.Use();
 		_window.Load += on_load;
