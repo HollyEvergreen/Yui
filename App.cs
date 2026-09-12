@@ -50,6 +50,7 @@ public abstract class App
 
     public int run()
     {
+		Debug.Assert(OGL.gl != null);
 	    WindowOptions windowConfig = fs.GetConfig<WindowConfig>("Window") ?? throw new("Failed to get config");
 	    windowConfig.API = windowConfig.API with { Version = new APIVersion(4, 6) };
 	    SdlWindowing.RegisterPlatform();
@@ -62,6 +63,7 @@ public abstract class App
 		_window.Load += Start;
 		_window.Update += update;
 		_window.Render += render;
+		_window.Resize += OGL.gl.Viewport;
 
 		_window.Run();
 		return 0;
